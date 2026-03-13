@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#c41e3a" />
+  <title>D1Shop - Canasta familiar</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Header único tipo web -->
+    <header class="site-header">
+      <a href="#" class="logo" data-screen="inicio" aria-label="D1Shop Inicio">
+        <span class="logo-text">D1Shop</span>
+        <span class="logo-tagline">Canasta familiar</span>
+      </a>
+      <nav class="site-nav">
+        <button type="button" class="nav-link active" data-screen="inicio">Inicio</button>
+        <button type="button" class="nav-link nav-link-cart" data-screen="carrito">
+          Carrito
+          <span id="cart-badge" class="nav-badge" style="display: none;">0</span>
+        </button>
+        <button type="button" class="nav-link" data-screen="pago">Pago</button>
+        <div id="auth-buttons" class="auth-buttons">
+          <button type="button" class="btn btn-outline-light btn-sm" id="btn-show-login">Iniciar sesión</button>
+          <button type="button" class="btn btn-light btn-sm" id="btn-show-register">Registrarse</button>
+        </div>
+        <div id="user-menu" class="user-menu" style="display: none;">
+          <span class="user-name" id="header-user-name"></span>
+          <button type="button" class="btn btn-outline-light btn-sm" id="btn-logout">Cerrar sesión</button>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Pantalla 1: Inicio -->
+    <section id="screen-inicio" class="screen active">
+      <main class="main main--inicio">
+        <div class="hero">
+          <h1 class="hero-title">Todo para tu hogar</h1>
+          <p class="hero-subtitle">Encuentra los mejores productos para tu canasta familiar con ofertas increíbles.</p>
+          <div class="search-wrap">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="search-products" class="search-input" placeholder="Buscar productos..." autocomplete="off" />
+          </div>
+        </div>
+        <section class="section">
+          <h2 class="section-title">Categorías</h2>
+          <div id="categories-grid" class="categories-grid"></div>
+        </section>
+        <section class="section">
+          <h2 class="section-title">Ofertas destacadas</h2>
+          <div id="featured-products" class="products-grid"></div>
+        </section>
+        <section class="section section-products-by-category" id="section-by-category" style="display: none;">
+          <h2 class="section-title" id="category-section-title"></h2>
+          <div id="products-by-category" class="products-grid"></div>
+        </section>
+      </main>
+    </section>
+
+    <!-- Pantalla: Login / Registro -->
+    <section id="screen-auth" class="screen">
+      <main class="main main--auth">
+        <div class="auth-container">
+          <div class="auth-tabs">
+            <button type="button" class="auth-tab active" data-tab="login">Iniciar sesión</button>
+            <button type="button" class="auth-tab" data-tab="register">Registrarse</button>
+          </div>
+          <p id="auth-message" class="auth-message" style="display: none;"></p>
+          <form id="form-login" class="auth-form">
+            <h2 class="auth-title">Iniciar sesión</h2>
+            <label class="label">Correo electrónico</label>
+            <input type="email" id="login-email" class="input" placeholder="tu@correo.com" required />
+            <label class="label">Contraseña</label>
+            <input type="password" id="login-password" class="input" placeholder="••••••••" required />
+            <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+          </form>
+          <form id="form-register" class="auth-form" style="display: none;">
+            <h2 class="auth-title">Crear cuenta</h2>
+            <label class="label">Nombre completo</label>
+            <input type="text" id="register-name" class="input" placeholder="Tu nombre" required />
+            <label class="label">Correo electrónico</label>
+            <input type="email" id="register-email" class="input" placeholder="tu@correo.com" required />
+            <label class="label">Contraseña (mínimo 6 caracteres)</label>
+            <input type="password" id="register-password" class="input" placeholder="••••••••" minlength="6" required />
+            <button type="submit" class="btn btn-primary btn-block">Registrarme</button>
+          </form>
+          <button type="button" class="auth-back" id="btn-auth-back">Volver al inicio</button>
+        </div>
+      </main>
+    </section>
+
+    <!-- Pantalla 2: Carrito -->
+    <section id="screen-carrito" class="screen">
+      <main class="main main--page">
+        <h1 class="page-title">Carrito de compras</h1>
+        <div id="cart-items" class="cart-items"></div>
+        <div class="cart-footer">
+          <p class="cart-total">Total a pagar: <strong id="cart-total-amount">$0.00</strong></p>
+          <div class="cart-actions">
+            <button type="button" class="btn btn-secondary" id="btn-back-store">Seguir comprando</button>
+            <button type="button" class="btn btn-primary" id="btn-continue-purchase">Continuar a la compra</button>
+          </div>
+        </div>
+      </main>
+    </section>
+
+    <!-- Pantalla 3: Método de pago -->
+    <section id="screen-pago" class="screen">
+      <main class="main main--page">
+        <h1 class="page-title">Finalizar compra</h1>
+        <div class="checkout-layout">
+          <div class="checkout-form">
+            <section class="section card-section">
+              <h2 class="section-title">Detalles de tarjeta</h2>
+              <div class="form-card">
+                <input type="text" id="card-number" class="input" placeholder="Número de tarjeta" maxlength="19" />
+                <input type="text" id="card-name" class="input" placeholder="Nombre en la tarjeta" />
+                <div class="form-row">
+                  <input type="text" id="card-expiry" class="input" placeholder="MM/AA" maxlength="5" />
+                  <input type="text" id="card-cvc" class="input" placeholder="CVC" maxlength="4" />
+                </div>
+              </div>
+            </section>
+            <section class="section card-section">
+              <h2 class="section-title">Método de pago</h2>
+              <div id="payment-methods" class="payment-methods"></div>
+            </section>
+          </div>
+          <aside class="order-sidebar">
+            <section class="section card-section">
+              <h2 class="section-title">Resumen del pedido</h2>
+              <div id="order-summary" class="order-summary"></div>
+              <p class="order-total">Total: <strong id="order-total-amount">$0.00</strong></p>
+              <button type="button" class="btn btn-primary btn-block" id="btn-proceed-purchase">Proceder con la compra</button>
+            </section>
+          </aside>
+        </div>
+      </main>
+    </section>
+
+    <footer class="site-footer">
+      <p>© D1Shop — Canasta familiar. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Contenedor de notificaciones toast -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- Modal de confirmación -->
+    <div id="confirm-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title" hidden>
+      <div class="modal">
+        <p id="confirm-title" class="modal-message"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary modal-btn-cancel">Cancelar</button>
+          <button type="button" class="btn btn-primary modal-btn-confirm">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
