@@ -1,116 +1,72 @@
-# Importacion de Librerías
-from webdriver_manager.chrome import ChromeDriverManager
-# Descarga automáticamente el driver de Chrome compatible con el navegador
 from selenium import webdriver
-from selenium.webdriver import Chrome
-from selenium.webdriver.chrome.service import Service
-# Importa herramienta para controlar el navegador Chrome
-import time
-# Permite pausar la ejecución con time.sleep()
 from selenium.webdriver.common.by import By
-# Define la forma de localizar elementos (By.ID, By.NAME, By.XPATH, etc.).
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait as Wait
-
-
-# --- PASO 3: IMPORTACIONES (Lo que ya tienes) ---
-
-from webdriver_manager.chrome import ChromeDriverManager
-
-from selenium import webdriver
-
-from selenium.webdriver.chrome.service import Service
-
-from selenium.webdriver.chrome.options import Options # Para las opciones del navegador
-
 import time
 
-
-# Credenciales de prueba para iniciar sesión en tu sitio
+# Credenciales de prueba
 USER = "elidreyes@correo.com"
 PASSWORD = "elidreyes"
- 
-# --- PASO 4: CONFIGURACIÓN DEL NAVEGADOR ---
 
 def main():
-
-    service = Service(ChromeDriverManager().install())
-
     options = webdriver.ChromeOptions()
+    options.add_argument("--window-size=1920,1080")
+    # Obligatorias para GitHub Actions (Linux sin pantalla)
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
-    options.add_argument("--window-size=1920, 1080")
-
-    driver = webdriver.Chrome(service=service, options=options)
-
+    # Selenium 4.6+ gestiona el chromedriver automáticamente
+    driver = webdriver.Chrome(options=options)
     wait = Wait(driver, 10)
 
     try:
-
         # 1. Abrir la App
-
         driver.get("http://localhost:3000")
+        print("✅ Página cargada")
+        time.sleep(3)
 
-        print("Esperando 4 segundos para que veas la carga...")
-
-        time.sleep(4) # Pausa inicial
-
-        # 2. Clic en la pestaña de Iniciar Sesión
-
-        tab_login = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Iniciar sesión')]")))
-
-        tab_login.click()
-
-        print("Pestaña seleccionada. Esperando 3 segundos...")
-
-        time.sleep(3) # Pausa para ver el cambio de pestaña
+        # 2. Clic en botón "Iniciar sesión" del header
+        btn_login = wait.until(EC.element_to_be_clickable((By.ID, "btn-show-login")))
+        btn_login.click()
+        print("✅ Pantalla de login abierta")
+        time.sleep(2)
 
         # 3. Escribir el Correo
-
         email_field = wait.until(EC.element_to_be_clickable((By.ID, "login-email")))
-
         email_field.send_keys(USER)
-
-        print("Correo escrito. Esperando 2 segundos...")
-
-        time.sleep(2) # Pausa tras escribir el correo
+        print(f"✅ Correo escrito: {USER}")
+        time.sleep(1)
 
         # 4. Escribir la Contraseña
-
         password_field = wait.until(EC.element_to_be_clickable((By.ID, "login-password")))
-
         password_field.send_keys(PASSWORD)
+        print("✅ Contraseña escrita")
+        time.sleep(1)
 
-        print("Contraseña escrita. Esperando 2 segundos antes de entrar...")
-
-        time.sleep(2) # Pausa tras escribir la clave
-
-        # 5. Clic en Entrar
-
-        login_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Entrar')]")))
-
+        # 5. Clic en el botón Entrar
+        login_button = wait.until(EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "#form-login button[type='submit']")
+        ))
         login_button.click()
+        print("✅ Formulario enviado")
+        time.sleep(4)
 
-        print("¡Login enviado!")
-
-        time.sleep(10) # Pausa final larga para ver si entraste a la tienda
+        # 6. Verificar que el login fue exitoso
+        user_menu = driver.find_element(By.ID, "user-menu")
+        if user_menu.is_displayed():
+            print("🎉 LOGIN EXITOSO - El menú de usuario está visible")
+        else:
+            print("❌ LOGIN FALLIDO - El menú de usuario no apareció")
+            raise Exception("Login no fue exitoso")
 
     except Exception as e:
-
-        print(f"❌ Error: {e}")
+        print(f"❌ Error durante la prueba: {e}")
+        raise
 
     finally:
-
         driver.quit()
- 
- 
- 
- 
-# --- EJECUTAR EL SCRIPT ---
+        print("🔒 Navegador cerrado")
 
 if __name__ == "__main__":
-
     main()
-
-
-
- 

@@ -13,11 +13,11 @@ jobs:
     steps:
       # 1. Descargar el código del repositorio
       - name: 📥 Clonar repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 2. Instalar Node.js para poder usar npx serve
+      # 2. Instalar Node.js
       - name: 🟢 Instalar Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
@@ -35,15 +35,15 @@ jobs:
 
       # 6. Instalar Python
       - name: 🐍 Instalar Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 7. Instalar las dependencias de Python
+      # 7. Instalar dependencias de Python (sin webdriver-manager)
       - name: 📦 Instalar dependencias Python
-        run: pip install selenium webdriver-manager
+        run: pip install selenium
 
-      # 8. Instalar Google Chrome (requerido en ubuntu-latest)
+      # 8. Instalar Google Chrome
       - name: 🌐 Instalar Google Chrome
         run: |
           wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
@@ -51,6 +51,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      # 9. Ejecutar el script de Selenium
+      # 9. Ejecutar el test de login con Selenium
       - name: 🤖 Ejecutar test de login con Selenium
         run: python main.py
