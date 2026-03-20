@@ -10,7 +10,6 @@ jobs:
   test-login:
     runs-on: ubuntu-latest
 
-    # ✅ Servicio de PostgreSQL que corre junto al workflow
     services:
       postgres:
         image: postgres:15
@@ -27,21 +26,20 @@ jobs:
           --health-retries 5
 
     steps:
-      # 1. Descargar el código del repositorio
       - name: 📥 Clonar repositorio
         uses: actions/checkout@v4
 
-      # 2. Instalar Node.js
       - name: 🟢 Instalar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      # 3. Instalar dependencias de Node
-      - name: 📦 Instalar dependencias Node
-        run: npm install
+      # ✅ Eliminar node_modules de Windows y reinstalar en Linux
+      - name: 📦 Reinstalar dependencias en Linux
+        run: |
+          rm -rf node_modules
+          npm install
 
-      # 4. Crear las tablas en la base de datos
       - name: 🗄️ Crear tablas en PostgreSQL
         run: |
           psql postgresql://postgres:postgres@localhost:5432/d1shop << 'SQL'
@@ -110,7 +108,7 @@ jobs:
           );
           SQL
 
-      # 5. Insertar usuario de prueba para el test de login
+      # ✅ Ahora bcrypt funciona porque se compiló en Linux
       - name: 👤 Insertar usuario de prueba
         run: |
           node -e "
@@ -126,7 +124,6 @@ jobs:
           });
           "
 
-      # 6. Crear archivo .env para que el servidor encuentre la base de datos
       - name: ⚙️ Crear archivo .env
         run: |
           echo "PORT=3000" >> .env
@@ -136,11 +133,9 @@ jobs:
           echo "DB_USER=postgres" >> .env
           echo "DB_PASSWORD=postgres" >> .env
 
-      # 7. Levantar la app en segundo plano
       - name: 🚀 Levantar app en localhost:3000
         run: npm start &
 
-      # 8. Esperar que el servidor esté listo
       - name: ⏳ Esperar que localhost:3000 responda
         run: |
           echo "Esperando que el servidor levante..."
@@ -153,20 +148,16 @@ jobs:
             sleep 2
           done
 
-      # 9. Instalar Python
       - name: 🐍 Instalar Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 10. Instalar dependencias de Python
       - name: 📦 Instalar dependencias Python
         run: pip install selenium
 
-      # 11. Instalar Chrome y ChromeDriver sincronizados
       - name: 🌐 Instalar Chrome y ChromeDriver sincronizados
         uses: browser-actions/setup-chrome@v1
 
-      # 12. Ejecutar el test de login con Selenium
       - name: 🤖 Ejecutar test de login con Selenium
         run: python main.py
