@@ -1,6 +1,4 @@
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait as Wait
@@ -11,16 +9,15 @@ USER = "elidreyes@correo.com"
 PASSWORD = "elidreyes"
 
 def main():
-    service = Service(ChromeDriverManager().install())
-
     options = webdriver.ChromeOptions()
     options.add_argument("--window-size=1920,1080")
-    # ✅ Estas opciones son OBLIGATORIAS para que funcione en GitHub Actions
-    options.add_argument("--headless")         # Sin pantalla gráfica
-    options.add_argument("--no-sandbox")       # Requerido en Linux/CI
-    options.add_argument("--disable-dev-shm-usage")  # Evita errores de memoria
+    # Obligatorias para GitHub Actions (Linux sin pantalla)
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
-    driver = webdriver.Chrome(service=service, options=options)
+    # Selenium 4.6+ gestiona el chromedriver automáticamente
+    driver = webdriver.Chrome(options=options)
     wait = Wait(driver, 10)
 
     try:
@@ -29,7 +26,7 @@ def main():
         print("✅ Página cargada")
         time.sleep(3)
 
-        # 2. Clic en botón "Iniciar sesión" del header para ir a la pantalla de auth
+        # 2. Clic en botón "Iniciar sesión" del header
         btn_login = wait.until(EC.element_to_be_clickable((By.ID, "btn-show-login")))
         btn_login.click()
         print("✅ Pantalla de login abierta")
@@ -47,7 +44,7 @@ def main():
         print("✅ Contraseña escrita")
         time.sleep(1)
 
-        # 5. Clic en el botón Entrar (dentro del formulario)
+        # 5. Clic en el botón Entrar
         login_button = wait.until(EC.element_to_be_clickable(
             (By.CSS_SELECTOR, "#form-login button[type='submit']")
         ))
@@ -56,7 +53,6 @@ def main():
         time.sleep(4)
 
         # 6. Verificar que el login fue exitoso
-        # Si el menú de usuario aparece, el login funcionó
         user_menu = driver.find_element(By.ID, "user-menu")
         if user_menu.is_displayed():
             print("🎉 LOGIN EXITOSO - El menú de usuario está visible")
@@ -66,7 +62,7 @@ def main():
 
     except Exception as e:
         print(f"❌ Error durante la prueba: {e}")
-        raise  # Re-lanza el error para que GitHub Actions lo marque como fallido
+        raise
 
     finally:
         driver.quit()
@@ -74,7 +70,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
- 
