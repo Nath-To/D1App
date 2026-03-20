@@ -29,9 +29,18 @@ jobs:
       - name: 🚀 Levantar app en localhost:3000
         run: npm start &
 
-      # 5. Esperar que el servidor esté listo
-      - name: ⏳ Esperar que el servidor esté listo
-        run: sleep 5
+      # 5. Esperar que el servidor esté REALMENTE listo
+      - name: ⏳ Esperar que localhost:3000 responda
+        run: |
+          echo "Esperando que el servidor levante..."
+          for i in {1..30}; do
+            if curl -s http://localhost:3000 > /dev/null; then
+              echo "✅ Servidor listo en intento $i"
+              break
+            fi
+            echo "Intento $i: servidor no listo, esperando 2s..."
+            sleep 2
+          done
 
       # 6. Instalar Python
       - name: 🐍 Instalar Python
@@ -39,17 +48,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 7. Instalar dependencias de Python (sin webdriver-manager)
+      # 7. Instalar dependencias de Python
       - name: 📦 Instalar dependencias Python
         run: pip install selenium
 
-      # 8. Instalar Google Chrome
-      - name: 🌐 Instalar Google Chrome
-        run: |
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list'
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+      # 8. Instalar Chrome y ChromeDriver sincronizados
+      - name: 🌐 Instalar Chrome y ChromeDriver sincronizados
+        uses: browser-actions/setup-chrome@v1
 
       # 9. Ejecutar el test de login con Selenium
       - name: 🤖 Ejecutar test de login con Selenium
